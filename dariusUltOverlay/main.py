@@ -15,6 +15,7 @@ sg.Window._move_all_windows = True
 
 def get_data():
     global ult_dmgs
+    global base_dmg
     url_abilities = "https://127.0.0.1:2999/liveclientdata/activeplayerabilities"
     url_stats = "https://127.0.0.1:2999/liveclientdata/activeplayer"
     data_abilities = 0
@@ -48,7 +49,7 @@ def ult_dmg():
             elif lvl == 3:
                 base_dmg = 375
             else:
-                base_dmg = 0
+                base_dmg = 125
             ult_dmgs = [base_dmg + (bonus_ad / 100) * 75, base_dmg + ((base_dmg / 100) * 20) + (bonus_ad / 100) * 90,
                         base_dmg + ((base_dmg / 100) * 40) + (bonus_ad / 100) * 105,
                         base_dmg + ((base_dmg / 100) * 60) + (bonus_ad / 100) * 120,
@@ -65,6 +66,30 @@ def update_dmg():
         time.sleep(0.2)
 
 
+def update_text(window, i, text):
+    window[str(i)].update(text)
+
+
+def update_window(window, i, alert, alert_msg, update_code):
+    while 5 >= i >= 0:
+        if update_code == 0:
+            if i == 0:
+                update_text(window, i, "No stack: " + str("%.0f" % ult_dmgs[i]))
+            elif i == 1:
+                update_text(window, i, str(i) + " Stack: " + str("%.0f" % ult_dmgs[i]))
+            else:
+                update_text(window, i, str(i) + " Stacks: " + str("%.0f" % ult_dmgs[i]))
+        elif update_code == 1:
+            if i == 0:
+                update_text(window, i, "No stack: ")
+            elif i == 1:
+                update_text(window, i, str(i) + " Stack: ")
+            else:
+                update_text(window, i, str(i) + " Stacks: ")
+        i -= 1
+        update_text(window, alert, alert_msg)
+
+
 def windows_start():
     font = ("Arial", 15)
     sg.theme_background_color("#042028")
@@ -77,7 +102,7 @@ def windows_start():
               [sg.Text("3 Stack:", font=font, key='3', background_color="#042028")],
               [sg.Text("4 Stack:", font=font, key='4', background_color="#042028")],
               [sg.Text("5 Stack:", font=font, key='5', background_color="#042028")],
-              [sg.Text("Waiting for game...", font=font, key='W', background_color="#042028")]]
+              [sg.Text("Waiting for game...", font=font, key='A', background_color="#042028")]]
     window = sg.Window("Demo", layout, keep_on_top=True, no_titlebar=True,
                        grab_anywhere_using_control=True,
                        background_color="#042028", element_padding=4, margins=(10, 10))
@@ -86,22 +111,10 @@ def windows_start():
         if event == 'Close':
             sys.exit()
         if len(ult_dmgs) != 0:
-            window['0'].update("0 Stack: " + str("%.0f" % ult_dmgs[0]))
-            window['1'].update("1 Stack: " + str("%.0f" % ult_dmgs[1]))
-            window['2'].update("2 Stack: " + str("%.0f" % ult_dmgs[2]))
-            window['3'].update("3 Stack: " + str("%.0f" % ult_dmgs[3]))
-            window['4'].update("4 Stack: " + str("%.0f" % ult_dmgs[4]))
-            window['5'].update("5 Stack: " + str("%.0f" % ult_dmgs[5]))
-            window['W'].update("Ok")
+            update_window(window, 5, 'A', "Ok", 0)
             window.refresh()
         else:
-            window['0'].update("0 Stack:")
-            window['1'].update("1 Stack:")
-            window['2'].update("2 Stack:")
-            window['3'].update("3 Stack:")
-            window['4'].update("4 Stack:")
-            window['5'].update("5 Stack:")
-            window['W'].update("Waiting for game...")
+            update_window(window, 5, 'A', "Waiting for game...", 1)
             window.refresh()
 
 
